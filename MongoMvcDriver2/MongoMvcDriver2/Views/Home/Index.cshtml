@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<link href="~/Content/Testmongo.css" rel="stylesheet" />
+
+
+<div class="jumbotron">
+    
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div>
+           <div style="font-size: 26px;margin-bottom: 14px;">Add user</div> 
+
+            <label>Name : <input class="Name"/></label>
+            <label>Email : <input class="Email"/></label>
+            <button class="adduser">Add</button>
+        </div>
+    </div>
+    <div class="col-md-4">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">All users</div>
+
+                <!-- Table -->
+                <table class="table">
+                    <thead>
+                        <tr><th>USER NAME</th><th>EMAIL ADDRESS</th></tr>
+                    </thead>
+                    <tbody class="userdata"></tbody>
+                </table>
+            </div>
+    </div>
+    <div class="col-md-4">
+        
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        function showalluser( ) {
+            CallService("POST", '/Home/AllUser', null, "application/json; charset=utf-8", "json", true, function (response) {
+                var data = '',length = response.length;
+                for (var i = 0; i < length; i++) {
+                    data = data + '<tr><td>' + response[i].Name + '</td><td>' + response[i].Email + '</td></tr>';
+                }
+                $('.userdata').html(data);
+            }, function (msg) {
+                //alert(msg.responseText);
+            });
+        }
+
+        var CallService = function (type, url, data, contentType, dataType, processData, successFunction, errorFunction) {
+            $.ajax({
+                type: type, //GET,POST,PUT or DELETE verb
+                url: url, // Location of the service
+                data: data, //Data to be sent to server
+                contentType: contentType, // content type sent to server
+                dataType: dataType, //Expected data format from server
+                processdata: processData, //True or False
+                success: successFunction,
+                error: function (result) {//lblMsg
+                    errorFunction(result);
+                }  // function When Service call fails
+            });
+        }
+
+        $(document).ready(function () {
+
+            showalluser();
+
+            $('.adduser').click(function () {
+                CallService("POST", '/Home/Add', JSON.stringify({ Name: $('.Name').val(), Email: $('.Email').val() }), "application/json; charset=utf-8", "json", true, function (response) {
+                    showalluser();
+                }, function (msg) {
+                    //alert(msg.responseText);
+                });
+
+            });
+        });
+    </script>
+}
